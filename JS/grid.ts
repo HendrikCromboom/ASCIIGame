@@ -24,6 +24,7 @@ class Grid{
     } 
     carvePath(){ // So the basic idea is that the unit will randomly walk paths untill its at an edge, this will eventually be considered the traversable paths in the generated cave
         var finished = false;
+        //TODO: weight these behaviors a bit and add a hardcoded entrancesequence
         while(!finished){
             var randomNumber = Math.floor(Math.random() * 3)
             this.carveSingle(randomNumber);
