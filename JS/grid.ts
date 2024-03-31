@@ -21,19 +21,53 @@ class Grid{
     setTileByTuple(tuple: [number, number], value: string, traversable: boolean){
         this.tiles[tuple[0]][tuple[1]].value = value;
         this.tiles[tuple[0]][tuple[1]].traversable = traversable;
-    } 
-    carvePath(){ // So the basic idea is that the unit will randomly walk paths untill its at an edge, this will eventually be considered the traversable paths in the generated cave
-        var finished = false;
-        //TODO: weight these behaviors a bit and add a hardcoded entrancesequence
-        while(!finished){
-            var randomNumber = Math.floor(Math.random() * 3)
-            this.carveSingle(randomNumber);
-            if(this.playerPosition[0] == 0 || this.playerPosition[0] == this.yAxisLength -1 || this.playerPosition[1] == 0 || this.playerPosition[1] == this.xAxisLength -1 ){
-                finished = true;
+    }
+    setEdges(){
+        for(let y of this.tiles){
+            for(let x of y){
+                if(this.playerPosition[0] == 0 || this.playerPosition[0] == this.yAxisLength -1 || this.playerPosition[1] == 0 || this.playerPosition[1] == this.xAxisLength -1 ){
+                x.traversable = false;
+                x.value = "0";
+                }
             }
         }
     }
-    carveSingle(number: number):number{
+    carveSingleCycle(maximumComplexity: number, lowestMatch: number): Tile | void{
+        var finalEnd: Tile = new Tile;
+        var succes = false;
+        for(var i = 1; i<= maximumComplexity; i++){
+            var result = this.carveSinglePath();
+            if(result.yAxis == this.yAxisLength -1){//Arbitrary ends of level at right side for now
+                finalEnd = result;
+                succes = true;
+            }
+            if(succes == true && i >= lowestMatch){
+                break;
+            }
+        }
+        if(succes == true){
+            this.finishPosition = [finalEnd.yAxis, finalEnd.xAxis];
+            return finalEnd;
+        }else{
+            this.carveSingleCycle(maximumComplexity, lowestMatch);// Loop again if arbitrary criteria isnt met
+        }
+    } 
+    carveSinglePath(): Tile{ // So the basic idea is that the unit will randomly walk paths untill its at an edge, this will eventually be considered the traversable paths in the generated cave
+        var finished = false;
+        var tileToReturn;
+        while(!finished){
+            var randomNumber = Math.floor(Math.random() * 3)
+            this.carveSingleMove(randomNumber);
+            if(this.playerPosition[0] == 0 || this.playerPosition[0] == this.yAxisLength -1 || this.playerPosition[1] == 0 || this.playerPosition[1] == this.xAxisLength -1 ){
+                finished = true;
+                tileToReturn = new Tile;
+                tileToReturn.xAxis = this.playerPosition[1];
+                tileToReturn.yAxis = this.playerPosition[0];
+            }
+        }
+        return tileToReturn;
+    }
+    carveSingleMove(number: number):number{
         switch(number){
             case 0:
                 this.setTileByTuple([this.playerPosition[0]+1, this.playerPosition[1]], "-", true);
@@ -52,5 +86,6 @@ class Grid{
                 this.playerPosition = [this.playerPosition[0]+1, this.playerPosition[1]-1];
                 return 3;
         }
-    }  
+    }
+
 }
