@@ -22,6 +22,14 @@ class Grid{
         this.tiles[tuple[0]][tuple[1]].value = value;
         this.tiles[tuple[0]][tuple[1]].traversable = traversable;
     }
+    initNewGrid(){// So first we do the drunk walk , then we set the edges again, then we make the entry and end accesible again
+        var endTile = this.carveSingleCycle(10, 4);
+        this.setEdges();
+        if(endTile != undefined){
+            this.setTileByTuple([endTile.yAxis, endTile.xAxis], "X", true);
+        }
+        this.setTileByTuple(this.startingPosition, "S", true);
+    }
     setEdges(){
         for(let y of this.tiles){
             for(let x of y){
